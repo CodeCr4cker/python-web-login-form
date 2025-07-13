@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Login Form with Voice</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 50px;
+            background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .login-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 1s ease-in-out;
+        }
+        
+        h1 {
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        input[type="text"]::placeholder, input[type="password"]::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        input[type="text"]:focus, input[type="password"]:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+        
+        .login-button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+        
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+        
+        .login-button:active {
+            transform: translateY(0);
+        }
+        
+        .message {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 10px;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .message.success {
+            background: rgba(76, 175, 80, 0.3);
+            color: #4caf50;
+            opacity: 1;
+        }
+        
+        .message.error {
+            background: rgba(244, 67, 54, 0.3);
+            color: #f44336;
+            opacity: 1;
+        }
+        
+        .voice-controls {
+            margin-top: 20px;
+        }
+        
+        .voice-button {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            cursor: pointer;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .voice-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        @keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(30px);
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .success-animation {
+            animation: pulse 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>🔐 Secure Login</h1>
+        
+        <div class="input-group">
+            <label for="username">User ID:</label>
+            <input type="text" id="username" placeholder="Enter your User ID">
+        </div>
+        
+        <div class="input-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" placeholder="Enter your Password">
+        </div>
+        
+        <button class="login-button" onclick="attemptLogin()">Login</button>
+        
+
+        
+        <div id="message" class="message"></div>
+    </div>
+
+    <script>
+        function speak(message) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(message);
+                
+                // Try to get a female voice
+                const voices = speechSynthesis.getVoices();
+                const femaleVoice = voices.find(voice => 
+                    voice.name.includes('Female') || 
+                    voice.name.includes('Karen') || 
+                    voice.name.includes('Samantha') ||
+                    voice.name.includes('Victoria') ||
+                    voice.gender === 'female'
+                );
+                
+                if (femaleVoice) {
+                    utterance.voice = femaleVoice;
+                } else if (voices.length > 1) {
+                    utterance.voice = voices[1]; // Try second voice if available
+                }
+                
+                utterance.rate = 0.8;
+                utterance.pitch = 1.2;
+                utterance.volume = 0.8;
+                
+                speechSynthesis.speak(utterance);
+            }
+        }
+        
+        function showMessage(text, type) {
+            const messageElement = document.getElementById('message');
+            messageElement.textContent = text;
+            messageElement.className = `message ${type}`;
+            
+            setTimeout(() => {
+                messageElement.className = 'message';
+            }, 3000);
+        }
+        
+        function attemptLogin() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            // Clear previous messages
+            document.getElementById('message').className = 'message';
+            
+            // Validation
+            if (!username || !password) {
+                const message = "Please enter both username and password.";
+                showMessage(message, 'error');
+                speak(message);
+                return;
+            }
+            
+            // Check credentials
+            if (username === "Hacker@85" && password === "08052008") {
+                const message = "Access granted! Welcome back!";
+                showMessage(message, 'success');
+                speak(message);
+                
+                // Add success animation
+                document.querySelector('.login-container').classList.add('success-animation');
+                
+                // Simulate successful login - you can redirect or perform other actions here
+                setTimeout(() => {
+                    speak("Login successful. Redirecting...");
+                    // window.location.href = "dashboard.html"; // Uncomment to redirect
+                }, 2000);
+                
+            } else {
+                const message = "Access denied. Invalid credentials.";
+                showMessage(message, 'error');
+                speak(message);
+                
+                // Clear password field for security
+                document.getElementById('password').value = '';
+            }
+        }
+        
+        function toggleVoice() {
+            voiceEnabled = !voiceEnabled;
+            const status = document.getElementById('voiceStatus');
+            status.textContent = voiceEnabled ? 'ON' : 'OFF';
+            
+            const message = voiceEnabled ? "Voice feedback enabled" : "Voice feedback disabled";
+            if (voiceEnabled) {
+                speak(message);
+            }
+        }
+        
+        // Add Enter key support
+        document.getElementById('password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                attemptLogin();
+            }
+        });
+        
+        document.getElementById('username').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('password').focus();
+            }
+        });
+        
+        // Load voices when available
+        if ('speechSynthesis' in window) {
+            speechSynthesis.onvoiceschanged = function() {
+                // Voices are now loaded
+            };
+        }
+        
+        // Welcome message
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                speak("Welcome to the secure login system.");
+            }, 500);
+        });
+    </script>
+</body>
+</html>
